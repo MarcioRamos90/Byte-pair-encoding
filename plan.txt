@@ -1,0 +1,3 @@
+ [x] verify wich pair is commomly repeated in the text
+ [x] as identify the commom pair, add the index where that pair starts
+ [ ] create random character that don't exists on the text

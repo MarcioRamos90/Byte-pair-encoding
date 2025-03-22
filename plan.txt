@@ -1,3 +1,16 @@
+ -- Final desired struct aaabdaaabac
+  [
+    {
+     A: aa, // AabdAabac
+     B: Aa, // BbdBbac
+     C: Bb, // CdCac
+    }
+    // if the keys finish, append another lookup table starting from 0 again
+  ]
+
+
  [x] verify wich pair is commomly repeated in the text
  [x] as identify the commom pair, add the index where that pair starts
- [ ] create random character that don't exists on the text
+ [x] choose the next lookup key to substitute the pair in the text
+ [x] Transform the text in the final format using the keys
+ [ ] save the final text and the lookup table in a external source

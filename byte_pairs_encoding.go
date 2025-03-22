@@ -1,13 +1,17 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"log/slog"
 )
 
 var FinalText = string("")
 
-type LookupTable map[string]string
+type LookupTable map[byte]string
+
+type LookupTableLevels []LookupTable
 
 type StringIntPair struct {
 	Text    string
@@ -15,7 +19,59 @@ type StringIntPair struct {
 	Indexes []int
 }
 
-func the_most_frequent_pair(text string) (StringIntPair, error) {
+type KeyTable struct {
+	Values string
+	Pos    int
+}
+
+var Table = KeyTable{"ABCDEFGHIJKLMNOPQRSTUVXZ", 0}
+
+func main() {
+	text := "aaabdaaabac"
+	FinalText = text
+	for {
+		var err error
+		if FinalText, err = Proccess(FinalText); err != nil {
+			break
+		}
+	}
+	fmt.Println(FinalText)
+}
+
+func Proccess(text string) (string, error) {
+	lookupTableLevels := LookupTableLevels{}
+	lookupTableLevels = append(lookupTableLevels, LookupTable{})
+	pos := 0
+	pair, error := MostFrequentPair(text)
+	if error != nil {
+		slog.Error(error.Error())
+		return text, error
+	}
+	key := GetNextKeyTolookupTable(pair.Text)
+	textTrasnformed := TansformText(pair, string(key), text)
+
+	if key == 0 {
+		lookupTableLevels = append(lookupTableLevels, LookupTable{})
+		pos = 0
+	}
+
+	lookupTableLevels[pos][key] = pair.Text
+
+	pos += 1
+
+	return textTrasnformed, nil
+}
+
+func GetNextKeyTolookupTable(pair string) byte {
+	if Table.Pos == len(Table.Values) {
+		return 0
+	}
+	next := Table.Values[Table.Pos]
+	Table.Pos += 1
+	return next
+}
+
+func MostFrequentPair(text string) (StringIntPair, error) {
 	if len(text) < 2 {
 		return StringIntPair{}, errors.New("No more pairs")
 	}
@@ -47,12 +103,13 @@ func the_most_frequent_pair(text string) (StringIntPair, error) {
 	return mostRepeated, nil
 }
 
-func main() {
-
-	pair, error := the_most_frequent_pair("aaabdaaabac")
-
-	fmt.Print(pair)
-	if error != nil {
-
+func TansformText(pair StringIntPair, key, text string) string {
+	var buffer bytes.Buffer
+	start := 0
+	for _, idx := range pair.Indexes {
+		buffer.WriteString(text[start:idx] + key)
+		start = idx + 2
 	}
+	buffer.WriteString(text[start:])
+	return buffer.String()
 }
